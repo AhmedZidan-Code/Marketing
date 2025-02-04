@@ -126,7 +126,7 @@ class ClientAdjustmentController extends Controller
         if ($request->ajax()) {
 
             $term = trim($request->term);
-            $clients = DB::table('clients')->select('id', 'name as text')
+            $clients = DB::table('clients')->applyBranchCondition()->select('id', 'name as text')
                 ->where('name', 'LIKE', '%' . $term . '%')
                 ->orderBy('name', 'asc')->simplePaginate(5);
 

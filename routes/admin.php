@@ -37,6 +37,7 @@ use App\Http\Controllers\Admin\RepresentativeController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\SalesController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\StorageController;
 use App\Http\Controllers\Admin\StoreManagerController;
 use App\Http\Controllers\Admin\SupplierController;
@@ -66,6 +67,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
 
     // Units and Categories
     Route::resource('unites', UnitController::class);
+    Route::resource('sizes', SizeController::class);
     Route::resource('categories', CategoryController::class);
 
     // Productive and Branches
@@ -116,6 +118,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'admin'], function () {
     Route::get('getPurchasesDetails/{id}', [PurchasesController::class, 'getPurchasesDetails'])->name('admin.getPurchasesDetails');
     Route::get('purchases-for-supplier/{supplier_id}', [PurchasesController::class, 'getPurchasesForSupplier'])->name('admin.getPurchasesForSupplier');
     Route::get('getStorages', [PurchasesController::class, 'getStorages'])->name('admin.getStorages');
+    Route::get('getSizes', [SizeController::class, 'getSizes'])->name('admin.getSizes');
     Route::get('makeRowDetailsForPurchasesDetails', [PurchasesController::class, 'makeRowDetailsForPurchasesDetails'])->name('admin.makeRowDetailsForPurchasesDetails');
 
     Route::resource('head_back_purchases', HeadBackPurchasesController::class);

@@ -5,7 +5,7 @@
     @method('PUT')
     <div class="row g-4">
 
-        <div class="d-flex flex-column mb-7 fv-row col-sm-6">
+        <div class="d-flex flex-column mb-7 fv-row col-sm-4">
             <!--begin::Label-->
             <label for="name" class="d-flex align-items-center fs-6 fw-bold form-label mb-2">
                 <span class="required mr-1">الاسم</span>
@@ -15,7 +15,7 @@
                 value="{{ $row->name }}" />
         </div>
 
-        <div class="d-flex flex-column mb-7 fv-row col-sm-6">
+        <div class="d-flex flex-column mb-7 fv-row col-sm-4">
             <!--begin::Label-->
             <label for="phone_number" class="d-flex align-items-center fs-6 fw-bold form-label mb-2">
                 <span class="required mr-1">الهاتف</span>
@@ -24,6 +24,22 @@
             <input id="phone_number" required type="text" class="form-control form-control-solid" name="phone_number"
                 value="{{ $row->phone_number }}" />
         </div>
+        <div class="d-flex flex-column mb-7 fv-row col-sm-4">
+            <!--begin::Label-->
+            <label for="branch_id" class="d-flex align-items-center fs-6 fw-bold form-label mb-2">
+                <span class="required mr-1"> الفرع</span>
+            </label>
+
+            <select id="role_id" name="branch_id" class="form-control">
+                <option selected disabled>اختر الفرع</option>
+                @foreach ($branches as $branch)
+                    <option value="{{ $branch->id }}" {{ $row->branch_id == $branch->id ? 'selected' : '' }}>
+                        {{ $branch->title }}</option>
+                @endforeach
+            </select>
+
+        </div>
+
         <div class="d-flex flex-column mb-7 fv-row col-sm-6">
             <!--begin::Label-->
             <label for="company_id" class="d-flex align-items-center fs-6 fw-bold form-label mb-2">

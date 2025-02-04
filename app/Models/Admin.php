@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BranchScope;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
@@ -18,4 +19,8 @@ class Admin extends Authenticatable
     {
         return $this->belongsTo(Employee::class, 'employee_id');
     }
+    // protected static function booted()
+    // {
+    //     static::addGlobalScope(new BranchScope);
+    // }
 } //end

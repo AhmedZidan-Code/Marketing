@@ -3,6 +3,76 @@
     اضافة عملية شراء
 @endsection
 @section('css')
+    <style>
+        .table-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table th,
+        .table td {
+            vertical-align: middle;
+            padding: 0.75rem;
+        }
+
+        .form-control,
+        .form-select {
+            min-width: 100px;
+            padding: 0.375rem 0.75rem;
+        }
+
+        .date-input {
+            width: 140px !important;
+        }
+
+        .btn-delete {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .footer-highlight-1 {
+            background-color: #ffc107 !important;
+            color: #000;
+        }
+
+        .footer-highlight-2 {
+            background-color: #6c757d !important;
+            color: white;
+        }
+
+        .footer-highlight-3 {
+            background-color: #17a2b8 !important;
+            color: #000;
+        }
+
+        .footer-highlight-4 {
+            background-color: #28a745 !important;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                max-height: 70vh;
+            }
+
+            .form-control,
+            .form-select {
+                min-width: 80px;
+            }
+        }
+    </style>
 @endsection
 @section('content')
     <div class="card">
@@ -92,7 +162,26 @@
                 });
             })();
         </script>
-
+        <script>
+            (function() {
+                $('#size_id-1').select2({
+                    placeholder: 'Channel...',
+                    allowClear: true,
+                    ajax: {
+                        url: '{{ route('admin.getSizes') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term || '',
+                                page: params.page || 1
+                            }
+                        },
+                        cache: true
+                    }
+                });
+            })();
+        </script>
         <script>
             $(document).on('click', '.delete-sup', function(e) {
                 e.preventDefault();
@@ -152,6 +241,7 @@
 
 
                             loadScript(res.id);
+                            loadSizes(res.id);
                             callTotal();
 
                             updateNavigableElements();
@@ -189,6 +279,26 @@
                 });
 
             }
+
+            function loadSizes(id) {
+                $(`#size_id-${id}`).select2({
+                    placeholder: 'searching For Product...',
+                    // width: '350px',
+                    allowClear: true,
+                    ajax: {
+                        url: '{{ route('admin.getSizes') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term || '',
+                                page: params.page || 1
+                            }
+                        },
+                        cache: true
+                    }
+                });
+            }
         </script>
 
         <script>
@@ -205,9 +315,8 @@
 
                     success: function(res) {
 
-                        $(`#productive_code-${rowId}`).val(res.code);
-                        $(`#productive_buy_price-${rowId}`).val(res.productive_buy_price);
-                        $(`#batch_number-${rowId}`).val(res.batch_number);
+                        $(`#productive_code-${rowId}`).val(res.productive.code);
+                        $(`#productive_buy_price-${rowId}`).val(res.productive.productive_buy_price);
                         callTotal();
 
                     },

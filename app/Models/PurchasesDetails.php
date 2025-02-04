@@ -20,4 +20,8 @@ class PurchasesDetails extends Model
     {
         return $this->belongsTo(Productive::class, 'productive_id');
     }
+    public function size()
+    {
+        return $this->belongsTo(Size::class, 'size_id');
+    }
 }

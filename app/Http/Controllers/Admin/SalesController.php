@@ -52,7 +52,7 @@ class SalesController extends Controller
             return view('Admin.CRUDS.sales.index');
         }
 
-        $query = Sales::query()->with(['storage', 'client']);
+        $query = Sales::query()->applyBranchCondition()->with(['storage', 'client']);
 
         $this->applyFilters($query, $request);
 
@@ -200,10 +200,12 @@ class SalesController extends Controller
             'productive_buy_price.*' => 'required',
             'bouns' => 'required|array',
             'discount_percentage' => 'required|array',
-            'batch_number' => 'required|array',
+            'size_id' => 'required|array',
             'bouns.*' => 'required',
+            'color.*' => 'nullable|array',
             'discount_percentage.*' => 'required|numeric|max:100|min:0',
-            'batch_number.*' => 'required',
+            'size_id.*' => 'required',
+            'color.*' => 'max:100',
         ]);
 
         if (count($request->amount) !== count($request->productive_id)) {
@@ -219,6 +221,7 @@ class SalesController extends Controller
         $latestId = DB::table('sales')->latest('id')->value('id') ?? 0;
 
         return Sales::create(array_merge($data, [
+            'branch_id' => auth('admin')->user()->branch_id,
             'publisher' => auth('admin')->user()->id,
             'sales_number' => $latestId + 1,
             'date' => $now->toDateString(),
@@ -252,6 +255,8 @@ class SalesController extends Controller
 
             $detailsData[] = [
                 'storage_id' => $sales->storage_id,
+                'branch_id' => auth('admin')->user()->branch_id,
+                'publisher_id' => auth('admin')->user()->id,
                 'sales_id' => $sales->id,
                 'company_id' => $request->company_id[$i],
                 'productive_id' => $productiveId,
@@ -259,7 +264,8 @@ class SalesController extends Controller
                 'amount' => $amount,
                 'bouns' => $request->bouns[$i],
                 'discount_percentage' => $discountPercentage,
-                'batch_number' => $request->batch_number[$i],
+                'size_id' => $request->size_id[$i],
+                'color' => isset($request->color[$i]) ? $request->color[$i] : '',
                 'productive_sale_price' => $salePrice,
                 'productive_buy_price' => $request->productive_buy_price[$i],
                 'total' => $this->calculateTotal($salePrice, $amount, $discountPercentage),
@@ -279,13 +285,15 @@ class SalesController extends Controller
     private function calculateTotal($salePrice, $amount, $discountPercentage)
     {
         $subtotal = $salePrice * $amount;
-        return $subtotal - ($subtotal * $discountPercentage / 100);
+        // return $subtotal - ($subtotal * $discountPercentage / 100);
+        return $subtotal - $discountPercentage;
     }
 
     private function updateSalesTotals(Sales $sales, $totalDiscount)
     {
         $total = SalesDetails::where('sales_id', $sales->id)->sum('total');
-        $totalAfterDiscount = $total - ($total * $totalDiscount / 100);
+        // $totalAfterDiscount = $total - ($total * $totalDiscount / 100);
+        $totalAfterDiscount = $total - $totalDiscount;
 
         $sales->update([
             'total' => $total,
@@ -314,7 +322,7 @@ class SalesController extends Controller
     public function edit($id)
     {
         $row = Sales::findOrFail($id);
-        $details = SalesDetails::with('product.batches')->where('sales_id', $row->id)->get();
+        $details = SalesDetails::with('size')->where('sales_id', $row->id)->get();
         return view('Admin.CRUDS.sales.edit', compact('row', 'details'));
     }
 
@@ -386,9 +394,7 @@ class SalesController extends Controller
             );
 
             return \Response::json($results);
-
         }
-
     }
 
     public function customerBalance(Request $request)
@@ -396,7 +402,7 @@ class SalesController extends Controller
         return response()->json([
             'message' => 'success',
             'balance' => CustomerAccount::CustomerBalance($request->client_id),
-             'code'=>200
+            'code' => 200
         ]);
     }
 }

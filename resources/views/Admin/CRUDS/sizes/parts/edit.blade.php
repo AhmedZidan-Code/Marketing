@@ -1,6 +1,6 @@
 <!--begin::Form-->
 
-<form id="form" enctype="multipart/form-data" method="POST" action="{{ route('unites.update', $row->id) }}">
+<form id="form" enctype="multipart/form-data" method="POST" action="{{ route('sizes.update', $row->id) }}">
     @csrf
     @method('PUT')
     <div class="row g-4">

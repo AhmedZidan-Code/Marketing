@@ -8,6 +8,7 @@ use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use Yajra\DataTables\Facades\DataTables;
 
 class EmployeeController extends Controller
@@ -61,7 +62,9 @@ class EmployeeController extends Controller
     {
         $companies = Company::get();
         $storages = Storage::get();
-        return view('Admin.CRUDS.employees.parts.create', compact('companies', 'storages'));
+        $branches = Branch::get();
+
+        return view('Admin.CRUDS.employees.parts.create', compact('companies', 'storages', 'branches'));
     }
 
     public function store(Request $request)
@@ -71,6 +74,7 @@ class EmployeeController extends Controller
             'phone_number' => 'required|unique:employees,phone_number',
             'company_id' => 'required|exists:companies,id',
             'storage_id' => 'required|exists:storages,id',
+            'branch_id' => 'required|exists:branches,id',
         ]);
 
         Employee::create($data);
@@ -79,7 +83,8 @@ class EmployeeController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     }
 
     public function edit($id)
@@ -88,9 +93,9 @@ class EmployeeController extends Controller
         $row = Employee::find($id);
         $companies = Company::get();
         $storages = Storage::get();
+        $branches = Branch::get();
 
-        return view('Admin.CRUDS.employees.parts.edit', compact('row', 'companies', 'storages'));
-
+        return view('Admin.CRUDS.employees.parts.edit', compact('row', 'companies', 'storages', 'branches'));
     }
 
     public function update(Request $request, $id)
@@ -100,6 +105,7 @@ class EmployeeController extends Controller
             'phone_number' => 'required|unique:employees,phone_number,' . $id,
             'company_id' => 'required|exists:companies,id',
             'storage_id' => 'required|exists:storages,id',
+            'branch_id' => 'required|exists:branches,id',
         ]);
 
         $row = Employee::find($id);
@@ -109,7 +115,8 @@ class EmployeeController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     }
 
     public function destroy($id)
@@ -121,21 +128,23 @@ class EmployeeController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     } //end fun
 
-        public function getEmployee(Request $request){
+    public function getEmployee(Request $request)
+    {
         if ($request->ajax()) {
 
             $term = trim($request->term);
-            $employees = DB::table('employees')->select('id','name as text')
-                ->where('name', 'LIKE',  '%' . $term. '%')
+            $employees = DB::table('employees')->select('id', 'name as text')
+                ->where('name', 'LIKE',  '%' . $term . '%')
                 ->orderBy('name', 'asc')->simplePaginate(5);
 
-            $morePages=true;
-            $pagination_obj= json_encode($employees);
-            if (empty($employees->nextPageUrl())){
-                $morePages=false;
+            $morePages = true;
+            $pagination_obj = json_encode($employees);
+            if (empty($employees->nextPageUrl())) {
+                $morePages = false;
             }
             $results = array(
                 "results" => $employees->items(),
@@ -145,9 +154,6 @@ class EmployeeController extends Controller
             );
 
             return \Response::json($results);
-
         }
-
     }
-
 }

@@ -100,8 +100,8 @@
                 name: 'category.title'
             },
             {
-                data: 'company.title',
-                name: 'company.title'
+                data: 'company_title',
+                name: 'company_title'
             },
             {
                 data: 'one_buy_price',

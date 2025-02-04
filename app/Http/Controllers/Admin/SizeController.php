@@ -4,26 +4,26 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Branch;
-use App\Models\Unite;
+use App\Models\Size;
 use Illuminate\Http\Request;
-use Yajra\DataTables\DataTables;
+use Illuminate\Support\Facades\DB;
 
-class UnitController extends Controller
+class SizeController extends Controller
 {
     //
     public function __construct()
     {
-        $this->middleware('permission:عرض الوحدات,admin')->only('index');
-        $this->middleware('permission:تعديل الوحدات,admin')->only(['edit', 'update']);
-        $this->middleware('permission:إنشاء الوحدات,admin')->only(['create', 'store']);
-        $this->middleware('permission:حذف الوحدات,admin')->only('destroy');
+        $this->middleware('permission:عرض المقاسات,admin')->only('index');
+        $this->middleware('permission:تعديل المقاسات,admin')->only(['edit', 'update']);
+        $this->middleware('permission:إنشاء المقاسات,admin')->only(['create', 'store']);
+        $this->middleware('permission:حذف المقاسات,admin')->only('destroy');
     }
     public function index(Request $request)
     {
 
         if ($request->ajax()) {
-            $rows = Unite::query();
-            return Datatables::of($rows)
+            $rows = Size::query();
+            return \datatables()::of($rows)
                 ->addColumn('action', function ($row) {
 
                     $edit = '';
@@ -56,25 +56,25 @@ class UnitController extends Controller
                 ->make(true);
         }
 
-        return view('Admin.CRUDS.unites.index');
+        return view('Admin.CRUDS.sizes.index');
     }
 
     public function create()
     {
         $branches = Branch::get();
-        return view('Admin.CRUDS.unites.parts.create', \compact('branches'));
+        return view('Admin.CRUDS.sizes.parts.create', \compact('branches'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title' => 'required|unique:unites,title',
+            'title' => 'required',
             'branch_id' => 'required|exists:branches,id',
         ]);
 
         $data['publisher'] = auth('admin')->user()->id;
 
-        Unite::create($data);
+        Size::create($data);
 
         return response()->json(
             [
@@ -87,20 +87,20 @@ class UnitController extends Controller
     public function edit($id)
     {
 
-        $row = Unite::find($id);
+        $row = Size::find($id);
         $branches = Branch::get();
 
-        return view('Admin.CRUDS.unites.parts.edit', compact('row', 'branches'));
+        return view('Admin.CRUDS.sizes.parts.edit', compact('row', 'branches'));
     }
 
     public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'title' => 'required|unique:unites,title,' . $id,
+            'title' => 'required',
             'branch_id' => 'required|exists:branches,id',
         ]);
 
-        $row = Unite::find($id);
+        $row = Size::find($id);
         $row->update($data);
 
         return response()->json(
@@ -114,7 +114,7 @@ class UnitController extends Controller
     public function destroy($id)
     {
 
-        $row = Unite::find($id);
+        $row = Size::find($id);
 
         $row->delete();
 
@@ -125,5 +125,26 @@ class UnitController extends Controller
             ]
         );
     } //end fun
+
+    public function getSizes(Request $request)
+    {
+        if (!$request->ajax()) {
+            return;
+        }
+
+        $term = trim($request->term);
+        $posts = DB::table('sizes')->applyBranchCondition()
+            ->select('id', 'title as text')
+            ->where('title', 'LIKE', '%' . $term . '%')
+            ->orderBy('title', 'asc')
+            ->simplePaginate(3);
+
+        $morePages = !empty($posts->nextPageUrl());
+
+        return response()->json([
+            "results" => $posts->items(),
+            "pagination" => ["more" => $morePages],
+        ]);
+    }
 
 }

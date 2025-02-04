@@ -177,7 +177,7 @@ class EsalatController extends Controller
         if ($request->ajax()) {
 
             $term = trim($request->term);
-            $posts = DB::table('clients')->select('id', 'name as text')
+            $posts = DB::table('clients')->applyBranchCondition()->select('id', 'name as text')
                 ->where('name', 'LIKE', '%' . $term . '%')
                 ->orderBy('name', 'asc')->simplePaginate(3);
 

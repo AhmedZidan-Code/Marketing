@@ -35,6 +35,20 @@
             <input id="phone" required type="text" class="form-control form-control-solid" name="phone"
                 value="" />
         </div>
+        <div class="d-flex flex-column mb-7 fv-row col-sm-3">
+            <!--begin::Label-->
+            <label for="branch_id" class="d-flex align-items-center fs-6 fw-bold form-label mb-2">
+                <span class="required mr-1"> الفرع</span>
+            </label>
+
+            <select id="role_id" name="branch_id" class="form-control">
+                <option selected disabled>اختر الفرع</option>
+                @foreach ($branches as $branch)
+                    <option value="{{ $branch->id }}"> {{ $branch->title }}</option>
+                @endforeach
+            </select>
+
+        </div>
 
         <div class="d-flex flex-column mb-7 fv-row col-sm-3">
             <!--begin::Label-->
@@ -57,8 +71,8 @@
                 <span class="required mr-1"> اختر المندوب</span>
             </label>
 
-            <select  name="representative_id" class="select2 representative_id"
-                id='representative_id' style='width: 200px;'>
+            <select name="representative_id" class="select2 representative_id" id='representative_id'
+                style='width: 200px;'>
             </select>
 
         </div>
@@ -97,8 +111,8 @@
                 <span class="required mr-1">المديونية السابقة</span>
             </label>
             <!--end::Label-->
-            <input id="previous_indebtedness"  required type="number"
-                class="form-control form-control-solid" name="previous_indebtedness" value="" />
+            <input id="previous_indebtedness" required type="number" class="form-control form-control-solid"
+                name="previous_indebtedness" value="" />
         </div>
 
 

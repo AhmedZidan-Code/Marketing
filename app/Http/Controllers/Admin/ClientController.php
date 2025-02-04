@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enum\PaymentCategory;
 use App\Http\Controllers\Controller;
 use App\Models\Area;
+use App\Models\Branch;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -47,7 +48,6 @@ class ClientController extends Controller
                             </span>
                             </button>
                        ';
-
                 })
 
                 ->editColumn('created_at', function ($admin) {
@@ -55,7 +55,6 @@ class ClientController extends Controller
                 })
                 ->escapeColumns([])
                 ->make(true);
-
         }
 
         return view('Admin.CRUDS.clients.index');
@@ -65,8 +64,9 @@ class ClientController extends Controller
     {
         $governorates = Area::where('from_id', null)->get();
         $paymentCategories = PaymentCategory::getCategoriesSelect();
+        $branches = Branch::get();
 
-        return view('Admin.CRUDS.clients.parts.create', compact('governorates', 'paymentCategories'));
+        return view('Admin.CRUDS.clients.parts.create', compact('governorates', 'paymentCategories', 'branches'));
     }
 
     public function store(Request $request)
@@ -81,6 +81,7 @@ class ClientController extends Controller
             'city_id' => 'required|exists:areas,id',
             'address' => 'nullable',
             'previous_indebtedness' => 'required|integer',
+            'branch_id' => 'required|exists:branches,id',
         ]);
 
         $data['publisher'] = auth('admin')->user()->id;
@@ -91,7 +92,8 @@ class ClientController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     }
 
     public function show(Client $client)
@@ -109,9 +111,9 @@ class ClientController extends Controller
         $governorates = Area::where('from_id', null)->get();
         $cities = Area::where('from_id', $row->governorate_id)->get();
         $paymentCategories = PaymentCategory::getCategoriesSelect();
+        $branches = Branch::get();
 
-        return view('Admin.CRUDS.clients.parts.edit', compact('row', 'governorates', 'cities', 'paymentCategories'));
-
+        return view('Admin.CRUDS.clients.parts.edit', compact('row', 'governorates', 'cities', 'paymentCategories', 'branches'));
     }
 
     public function update(Request $request, $id)
@@ -126,6 +128,7 @@ class ClientController extends Controller
             'city_id' => 'required|exists:areas,id',
             'address' => 'nullable',
             'previous_indebtedness' => 'required|integer',
+            'branch_id' => 'required|exists:branches,id',
         ]);
 
         $row = Client::find($id);
@@ -135,7 +138,8 @@ class ClientController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     }
 
     public function destroy($id)
@@ -149,13 +153,13 @@ class ClientController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     } //end fun
 
     public function getCitiesForGovernorate($id)
     {
         $cities = Area::where('from_id', $id)->get();
         return view('Admin.CRUDS.clients.parts.cities', compact('cities'));
-
     }
 }

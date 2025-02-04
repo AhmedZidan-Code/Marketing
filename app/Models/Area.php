@@ -13,4 +13,5 @@ class Area extends Model
     public function country(){
         return $this->belongsTo(Area::class,'from_id');
     }
+
 }

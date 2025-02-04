@@ -29,7 +29,7 @@ class PurchasesController extends Controller
         }
 
         return $this->generateDataTable(
-            Purchases::query()->with(['storage', 'supplier'])
+            Purchases::query()->applyBranchCondition()->with(['storage', 'supplier'])
         );
     }
 
@@ -113,11 +113,14 @@ class PurchasesController extends Controller
             'productive_buy_price.*' => 'required',
             'bouns' => 'required|array',
             'discount_percentage' => 'required|array',
-            'batch_number' => 'required|array',
+            'size_id' => 'required|array',
             'bouns.*' => 'required',
+            'color.*' => 'nullable|array',
             'discount_percentage.*' => 'required',
             'batch_number.*' => 'required',
             'exp_date.*' => 'required|date',
+            'size_id.*' => 'required',
+            'color.*' => 'max:100',
         ]);
 
         if (count($request->amount) !== count($request->productive_id)) {
@@ -133,6 +136,7 @@ class PurchasesController extends Controller
         $latestId = DB::table('purchases')->latest('id')->value('id') ?? 0;
 
         return Purchases::create(array_merge($data, [
+            'branch_id' => auth('admin')->user()->branch_id,
             'publisher' => auth('admin')->user()->id,
             'purchases_number' => $latestId + 1,
             'date' => $now->toDateString(),
@@ -165,6 +169,7 @@ class PurchasesController extends Controller
             $discountPercentage = $request->discount_percentage[$i];
 
             $detailsData[] = [
+                'branch_id' => auth('admin')->user()->branch_id,
                 'storage_id' => $purchases->storage_id,
                 'purchases_id' => $purchases->id,
                 'productive_id' => $productiveId,
@@ -173,14 +178,15 @@ class PurchasesController extends Controller
                 'bouns' => $request->bouns[$i],
                 'exp_date' => $request->exp_date[$i],
                 'discount_percentage' => $discountPercentage,
-                'batch_number' => $request->batch_number[$i],
+                'size_id' => $request->size_id[$i],
+                'color' => isset($request->color[$i]) ? $request->color[$i] : '',
                 'productive_buy_price' => $buyPrice,
                 'total' => $this->calculateTotal($buyPrice, $amount, $discountPercentage),
                 'all_pieces' => $amount * $productive->num_pieces_in_package,
                 'date' => $purchases->date,
                 'year' => $purchases->year,
                 'month' => $purchases->month,
-                'publisher' => $purchases->publisher,
+                'publisher' => auth('admin')->user()->id,
                 'created_at' => $purchases->created_at ?? $now,
                 'updated_at' => $now,
             ];
@@ -270,7 +276,7 @@ class PurchasesController extends Controller
         }
 
         $term = trim($request->term);
-        $posts = DB::table('storages')
+        $posts = DB::table('storages')->applyBranchCondition()
             ->select('id', 'title as text')
             ->where('title', 'LIKE', '%' . $term . '%')
             ->orderBy('title', 'asc')

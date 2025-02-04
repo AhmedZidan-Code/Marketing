@@ -3,6 +3,42 @@
     تعديل عملية شراء
 @endsection
 @section('css')
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .form-control,
+        .form-select {
+            min-width: 100px;
+        }
+
+        .table td,
+        .table th {
+            vertical-align: middle;
+            padding: 0.75rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        @media (max-width: 768px) {
+
+            .form-control,
+            .form-select {
+                min-width: 80px;
+                font-size: 0.875rem;
+            }
+
+            .table td,
+            .table th {
+                padding: 0.5rem;
+            }
+        }
+    </style>
 @endsection
 @section('content')
     <div class="card">

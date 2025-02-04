@@ -6,11 +6,11 @@ use App\Models\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ZonesSetting extends Model
+class Size extends Model
 {
     use HasFactory;
+    protected  $guarded = [];
 
-    protected $guarded = [];
     protected static function booted()
     {
         static::addGlobalScope(new BranchScope);

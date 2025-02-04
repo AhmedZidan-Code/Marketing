@@ -3,6 +3,61 @@
     اضافة عملية بيع
 @endsection
 @section('css')
+    <style>
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table th,
+        .table td {
+            white-space: nowrap;
+            vertical-align: middle;
+        }
+
+        .form-select,
+        .form-control {
+            min-width: 120px;
+        }
+
+        .btn-delete {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .table tfoot {
+            font-weight: bold;
+        }
+
+        .table tfoot th {
+            background-color: #6c757d !important;
+            color: white !important;
+        }
+
+        .table thead th {
+            background-color: #6c757d !important;
+            color: white !important;
+        }
+
+        .table tfoot input {
+            background-color: transparent;
+            border: 1px solid #dee2e6;
+            color: white;
+            width: 100%;
+        }
+
+        .required::after {
+            content: "*";
+            color: red;
+            margin-right: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .table-responsive {
+                max-height: 70vh;
+            }
+        }
+    </style>
 @endsection
 @section('content')
     <div class="card">
@@ -68,6 +123,7 @@
                             }, 1000);
 
                             loadScript(res.id); // If this initializes row-specific data
+                            loadSizes(res.id); // If this initializes row-specific data
                             callTotal(); // Update totals
 
                             // Reinitialize navigable elements to include the new row
@@ -82,7 +138,6 @@
         </script>
         <script>
             (function() {
-
                 $("#storage_id").select2({
                     placeholder: 'Channel...',
                     // width: '350px',
@@ -103,10 +158,8 @@
             })();
         </script>
 
-
         <script>
             (function() {
-
                 $("#client_id").select2({
                     placeholder: 'Channel...',
                     // width: '350px',
@@ -127,10 +180,8 @@
             })();
         </script>
 
-
         <script>
             (function() {
-
                 $("#productive_id-1").select2({
                     placeholder: 'Channel...',
                     // width: '350px',
@@ -150,7 +201,26 @@
                 });
             })();
         </script>
-
+        <script>
+            (function() {
+                $('#size_id-1').select2({
+                    placeholder: 'Channel...',
+                    allowClear: true,
+                    ajax: {
+                        url: '{{ route('admin.getSizes') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term || '',
+                                page: params.page || 1
+                            }
+                        },
+                        cache: true
+                    }
+                });
+            })();
+        </script>
         <script>
             $(document).on('click', '.delete-sup', function(e) {
                 e.preventDefault();
@@ -160,42 +230,10 @@
             })
         </script>
 
-        {{-- 
-        <script>
-            $(document).on('click', '#addNewDetails', function(e) {
-                e.preventDefault();
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('admin.makeRowDetailsForSalesDetails') }}",
-
-                    success: function(res) {
-
-                        $('#details-container').append(res.html);
-                        $("html,body").animate({
-                            scrollTop: $(document).height()
-                        }, 1000);
-
-
-                        loadScript(res.id);
-                        callTotal();
-
-
-                    },
-                    error: function(data) {
-                        // location.reload();
-                    }
-                });
-
-
-            })
-        </script>
- --}}
-
-
         <script>
             function loadScript(id) {
                 $(`#productive_id-${id}`).select2({
-                    placeholder: 'searching For Supplier...',
+                    placeholder: 'searching For Product...',
                     // width: '350px',
                     allowClear: true,
                     ajax: {
@@ -211,7 +249,25 @@
                         cache: true
                     }
                 });
-
+            }
+            function loadSizes(id) {
+                $(`#size_id-${id}`).select2({
+                    placeholder: 'searching For Product...',
+                    // width: '350px',
+                    allowClear: true,
+                    ajax: {
+                        url: '{{ route('admin.getSizes') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function(params) {
+                            return {
+                                term: params.term || '',
+                                page: params.page || 1
+                            }
+                        },
+                        cache: true
+                    }
+                });
             }
         </script>
 
@@ -248,7 +304,6 @@
                 var id = $(this).val();
                 var route = "{{ route('admin.getProductiveDetails', ':id') }}";
                 route = route.replace(':id', id);
-                const selectElement = document.getElementById('batch_number-' + rowId);
 
                 $.ajax({
                     type: 'GET',
@@ -256,24 +311,9 @@
 
                     success: function(res) {
 
-                        $(`#productive_code-${rowId}`).val(res.code);
-                        // $(`#productive_sale_price-${rowId}`).val(res.productive_sale_price);
+                        $(`#productive_code-${rowId}`).val(res.productive.code);
                         $(`#company_id-${rowId}`).val(res.productive.company_id);
-                        let options = res.productive.batches;
-                        selectElement.innerHTML = '';
-                        if (options && options.length > 0) {
-                            options.forEach(option => {
-                                const opt = document.createElement('option');
-                                opt.value = option.batch_number;
-                                opt.textContent = option.batch_number;
-                                selectElement.appendChild(opt);
-                            });
-                        } else {
-                            const opt = document.createElement('option');
-                            opt.textContent = 'لايوجد رقم تشغيلة';
-                            opt.value = null;
-                            selectElement.appendChild(opt);
-                        }
+
                         getPrice(rowId);
 
                         callTotal();

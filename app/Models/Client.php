@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\BranchScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -29,5 +30,9 @@ class Client extends Model
     public function representatives()
     {
         return $this->belongsToMany(Representative::class, 'representative_clients');
+    }
+    protected static function booted()
+    {
+        static::addGlobalScope(new BranchScope);
     }
 }

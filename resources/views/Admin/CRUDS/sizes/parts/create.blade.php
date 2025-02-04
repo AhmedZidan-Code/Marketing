@@ -1,8 +1,7 @@
 <!--begin::Form-->
 
-<form id="form" enctype="multipart/form-data" method="POST" action="{{ route('unites.update', $row->id) }}">
+<form id="form" enctype="multipart/form-data" method="POST" action="{{route('sizes.store')}}">
     @csrf
-    @method('PUT')
     <div class="row g-4">
 
 
@@ -12,10 +11,8 @@
                 <span class="required mr-1">الاسم</span>
             </label>
             <!--end::Label-->
-            <input id="title" required type="text" class="form-control form-control-solid" name="title"
-                value="{{ $row->title }}" />
+            <input id="title" required type="text" class="form-control form-control-solid"  name="title" value=""/>
         </div>
-
 
         <div class="d-flex flex-column mb-7 fv-row col-sm-6">
             <!--begin::Label-->
@@ -26,13 +23,11 @@
             <select id="role_id" name="branch_id" class="form-control">
                 <option selected disabled>اختر الفرع</option>
                 @foreach ($branches as $branch)
-                    <option value="{{ $branch->id }}" {{ $row->branch_id == $branch->id ? 'selected' : '' }}>
-                        {{ $branch->title }}</option>
+                    <option value="{{ $branch->id }}"> {{ $branch->title }}</option>
                 @endforeach
             </select>
 
         </div>
-
 
 
     </div>

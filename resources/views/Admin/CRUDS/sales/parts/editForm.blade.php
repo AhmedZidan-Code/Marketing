@@ -76,12 +76,13 @@
                     <tr>
                         <th> المنتج</th>
                         <th> كود المنتج</th>
-                        <th style="width:200px;">رقم التشغيلة</th>
+                        <th style="width:200px;">المقاس</th>
                         <th> الكمية</th>
+                        <th>اللون</th>
                         <th>سعر الشراء</th>
                         <th>سعر البيع</th>
                         <th>بونص</th>
-                        <th>نسبة الخصم</th>
+                        <th>قيمة الخصم</th>
                         <th> القيمة الاجمالية</th>
                         <th>العمليات</th>
                     </tr>
@@ -112,17 +113,9 @@
                                     value="{{ $pivot->company_id }}" id="company_id-{{ $key }}">
                             </th>
                             <th>
-                                <select class="form-control selectClass" data-id="{{ $key }}"
-                                    name="batch_number[]" id="batch_number-{{ $key }}" style="width: 100%;"
-                                    onchange="getPrice({{ $key }})">
-                                    @forelse ($pivot->product->batches ?? [] as $batch)
-                                        <option value="{{ $batch->batch_number }}"
-                                            {{ $batch->batch_number == $pivot->batch_number ? 'selected' : '' }}>
-                                            {{ $batch->batch_number }}
-                                        </option>
-                                    @empty
-                                        <option>لايوجد رقم تشغيلة</option>
-                                    @endforelse
+                                <select class="form-control selectClass" data-id="{{ $key }}" name="size_id[]"
+                                    id="size_id-{{ $key }}" style="width: 100%;">
+                                    <option selected value='{{ $pivot->size_id }}'>{{ $pivot->size->title }}</option>
                                 </select>
                             </th>
                             <th>
@@ -130,12 +123,15 @@
                                     type="number" value="{{ $pivot->amount }}" min="1" name="amount[]"
                                     id="amount-{{ $key }}" class="form-control navigable"
                                     style="width: 100%;">
-
                             </th>
+                            <td>
+                                <input type="text" class="form-control navigable text-center" name="color[]"
+                                    data-id="{{ $key }}" id="color-{{ $key }}"
+                                    value="{{ $pivot->color }}">
+                            </td>
                             <th>
-                                <input data-id="{{ $key }}" step=".1" type="number" 
-                                    min="1" name="productive_buy_price[]"
-                                    value="{{ $pivot->productive_buy_price }}"
+                                <input data-id="{{ $key }}" step=".1" type="number" min="1"
+                                    name="productive_buy_price[]" value="{{ $pivot->productive_buy_price }}"
                                     id="productive_buy_price-{{ $key }}" class="form-control"
                                     style="width: 100%;">
 
@@ -186,7 +182,7 @@
                         <th colspan="2" id="total_productive_sale_price"
                             style="text-align: center; background-color: #6c757d;color: white">{{ $row->total }}
                         </th>
-                        <th colspan="1" style="text-align: center; background-color: aqua">نسبة الخصم الكلية</th>
+                        <th colspan="1" style="text-align: center; background-color: aqua">قيمة الخصم الكلية</th>
                         <th colspan="2" style="text-align: center; background-color: gray">
                             <input type="number" id="total_discount" value="{{ $row->total_discount }}"
                                 min="0" max="99" name="total_discount" style="width: 100%;"

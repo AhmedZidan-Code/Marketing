@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Traits\Upload_Files;
 use App\Models\Admin;
+use App\Models\Branch;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -91,8 +92,8 @@ class AdminController extends Controller
     {
         $roles = Role::get();
         $employees = Employee::get();
-
-        return view('Admin.CRUDS.admin.parts.create', compact('roles', 'employees'));
+        $branches = Branch::get();
+        return view('Admin.CRUDS.admin.parts.create', compact('roles', 'employees', 'branches'));
     }
 
     public function store(Request $request)
@@ -105,6 +106,7 @@ class AdminController extends Controller
             'image' => 'required|mimes:jpeg,jpg,png,gif,svg,webp,avif',
             'is_active' => 'required',
             'role_id' => 'required|exists:roles,id',
+            'branch_id' => 'nullable|exists:branches,id',
 
         ]);
         $data["image"] = $this->uploadFiles('admins', $request->file('image'), null);
@@ -143,13 +145,14 @@ class AdminController extends Controller
 
         $roles = Role::get();
         $employees = Employee::get();
+        $branches = Branch::get();
 
         $adminRoles = DB::table("model_has_roles")->where("model_has_roles.model_id", $admin->id)
             ->first();
 
         $admin->load('employee');
 
-        return view('Admin.CRUDS.admin.parts.edit', compact('admin', 'roles', 'adminRoles', 'employees'));
+        return view('Admin.CRUDS.admin.parts.edit', compact('admin', 'roles', 'adminRoles', 'employees', 'branches'));
 
     }
 
@@ -163,6 +166,7 @@ class AdminController extends Controller
             'image' => 'nullable|mimes:jpeg,jpg,png,gif,svg,webp,avif',
             'is_active' => 'nullable',
             'role_id' => 'required|exists:roles,id',
+            'branch_id' => 'nullable|exists:branches,id',
         ]);
         if ($request->password) {
 

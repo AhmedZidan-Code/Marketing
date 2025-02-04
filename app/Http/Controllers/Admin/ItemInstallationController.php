@@ -218,33 +218,11 @@ class ItemInstallationController extends Controller
 
     public function getProductiveDetails($id)
     {
-        $productive = Productive::with(['batches' => function ($query) {
-            $query->orderBy('created_at', 'desc');
-        }])->findOrFail($id);
-        $productive_buy_price = $productive->one_buy_price;
-        $latestPurchaseForProductive = DB::table('purchases_details')->where('productive_id', $id)->orderBy('id', 'desc')->first();
-        $batch = 0;
-        if ($latestPurchaseForProductive) {
-            $productive_buy_price = $latestPurchaseForProductive->productive_buy_price;
-            $batch = $latestPurchaseForProductive->batch_number;
-        }
-
-        $productive_sale_price = $productive->one_sell_price;
-        $latestSalesForProductive = DB::table('sales_details')->where('productive_id', $id)->orderBy('id', 'desc')->first();
-        if ($latestSalesForProductive) {
-            $productive_sale_price = $latestSalesForProductive->productive_sale_price;
-        }
+        $productive = Productive::findOrFail($id);
 
         return response()->json([
             'status' => true,
             'productive' => $productive,
-            'code' => $productive->code,
-            'unit' => $productive->unit->title ?? '',
-            'name' => $productive->name,
-            'productive_id' => $productive->id,
-            'productive_buy_price' => $productive_buy_price,
-            'productive_sale_price' => $productive_sale_price,
-            'batch_number' => $batch,
         ]);
     }
 
@@ -261,7 +239,7 @@ class ItemInstallationController extends Controller
         if ($request->ajax()) {
 
             $term = trim($request->term);
-            $posts = DB::table('productive') /*->where('product_type','kham')*/->select('id', 'name as text')
+            $posts = DB::table('productive')->applyBranchCondition() /*->where('product_type','kham')*/->select('id', 'name as text')
                 ->where('name', 'LIKE', '%' . $term . '%')
                 ->orderBy('name', 'asc')->simplePaginate(3);
 

@@ -49,20 +49,15 @@ class ProductiveController extends Controller
                             </span>
                             </button>
                        ';
-
                 })
-
-            // ->add('company', function ($row) {
-            //      return $row->company->title;
-
-            // })
-
+                ->addColumn('company_title', function ($row) {
+                    return $row->company->title ?? '';
+                })
                 ->editColumn('created_at', function ($admin) {
                     return date('Y/m/d', strtotime($admin->created_at));
                 })
                 ->escapeColumns([])
                 ->make(true);
-
         }
 
         return view('Admin.CRUDS.productive.index');
@@ -90,11 +85,12 @@ class ProductiveController extends Controller
             'unit_id' => 'required|exists:unites,id',
             'category_id' => 'required|exists:categories,id',
             'company_id' => 'required|exists:companies,id',
-            'zones_setting_id' => 'sometimes|exists:zones_settings,id',
+            // 'zones_setting_id' => 'sometimes|exists:zones_settings,id',
 
         ]);
 
-        $data['publisher'] = auth('admin')->user()->id;
+        $data['publisher_id'] = auth('admin')->user()->id;
+        $data['branch_id'] = auth('admin')->user()->branch_id;
         $data['packet_buy_price'] = $request->one_buy_price;
         $data['packet_sell_price'] = $request->one_sell_price;
         $data['packet_buy_price'] = 1;
@@ -105,7 +101,8 @@ class ProductiveController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     }
 
     public function edit($id)
@@ -116,7 +113,6 @@ class ProductiveController extends Controller
         $zones = ZonesSetting::whereNull('parent_id')->get();
         $city = ZonesSetting::where('id', $row->zones_setting_id)->first();
         return view('Admin.CRUDS.productive.parts.edit', compact('row', 'categories', 'unites', 'zones', 'city'));
-
     }
 
     public function update(Request $request, $id)
@@ -132,7 +128,7 @@ class ProductiveController extends Controller
             'unit_id' => 'required|exists:unites,id',
             'category_id' => 'required|exists:categories,id',
             'company_id' => 'required|exists:companies,id',
-            'zones_setting_id' => 'sometimes|exists:zones_settings,id',
+            // 'zones_setting_id' => 'sometimes|exists:zones_settings,id',
 
         ]);
 
@@ -147,7 +143,8 @@ class ProductiveController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     }
 
     public function destroy($id)
@@ -161,7 +158,8 @@ class ProductiveController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     } //end fun
 
     public function getPrice(Request $request)
@@ -196,7 +194,7 @@ class ProductiveController extends Controller
                 'code' => 200,
                 'buy_price' => $buyPrice,
                 'sell_price' => $salePrice,
-            ]);
+            ]
+        );
     }
-
 }

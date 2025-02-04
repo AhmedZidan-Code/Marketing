@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -15,15 +16,15 @@ class CategoryController extends Controller
 
         if ($request->ajax()) {
             $rows = Category::query();
-            return DataTables::of( $rows)
+            return DataTables::of($rows)
                 ->addColumn('action', function ($row) {
 
-                    $edit='';
-                    $delete='';
+                    $edit = '';
+                    $delete = '';
 
 
                     return '
-                            <button '.$edit.'   class="editBtn btn rounded-pill btn-primary waves-effect waves-light"
+                            <button ' . $edit . '   class="editBtn btn rounded-pill btn-primary waves-effect waves-light"
                                     data-id="' . $row->id . '"
                             <span class="svg-icon svg-icon-3">
                                 <span class="svg-icon svg-icon-3">
@@ -31,7 +32,7 @@ class CategoryController extends Controller
                                 </span>
                             </span>
                             </button>
-                            <button '.$delete.'  class="btn rounded-pill btn-danger waves-effect waves-light delete"
+                            <button ' . $delete . '  class="btn rounded-pill btn-danger waves-effect waves-light delete"
                                     data-id="' . $row->id . '">
                             <span class="svg-icon svg-icon-3">
                                 <span class="svg-icon svg-icon-3">
@@ -40,14 +41,11 @@ class CategoryController extends Controller
                             </span>
                             </button>
                        ';
-
-
-
                 })
 
 
                 ->editColumn('from_id', function ($row) {
-                    return $row->parent->title ??'' ;
+                    return $row->parent->title ?? '';
                 })
 
                 ->editColumn('created_at', function ($admin) {
@@ -55,8 +53,6 @@ class CategoryController extends Controller
                 })
                 ->escapeColumns([])
                 ->make(true);
-
-
         }
 
         return view('Admin.CRUDS.categories.index');
@@ -65,19 +61,21 @@ class CategoryController extends Controller
 
     public function create()
     {
-        $categories=Category::get();
-        return view('Admin.CRUDS.categories.parts.create',compact('categories'));
+        $categories = Category::get();
+        $branches = Branch::get();
+
+        return view('Admin.CRUDS.categories.parts.create', compact('categories', 'branches'));
     }
 
     public function store(Request $request)
     {
         $data = $request->validate([
-            'title' => 'required|unique:categories,title' ,
-            'from_id'=>'nullable|exists:categories,id',
-
+            'title' => 'required|unique:categories,title',
+            'from_id' => 'nullable|exists:categories,id',
+            'branch_id' => 'required|exists:branches,id',
         ]);
 
-        $data['publisher']=auth('admin')->user()->id;
+        $data['publisher'] = auth('admin')->user()->id;
 
         Category::create($data);
 
@@ -87,30 +85,29 @@ class CategoryController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!'
-            ]);
+            ]
+        );
     }
 
 
-    public function edit(  $id)
+    public function edit($id)
     {
+        $row = Category::find($id);
+        $categories = Category::get();
+        $branches = Branch::get();
 
-
-
-        $row=Category::find($id);
-        $categories=Category::get();
-
-        return view('Admin.CRUDS.categories.parts.edit', compact('row','categories'));
-
+        return view('Admin.CRUDS.categories.parts.edit', compact('row', 'categories', 'branches'));
     }
 
-    public function update(Request $request, $id )
+    public function update(Request $request, $id)
     {
         $data = $request->validate([
-            'title' => 'required|unique:categories,title,'.$id,
-            'from_id'=>'nullable|exists:categories,id',
+            'title' => 'required|unique:categories,title,' . $id,
+            'from_id' => 'nullable|exists:categories,id',
+            'branch_id' => 'required|exists:branches,id',
         ]);
 
-        $row=Category::find($id);
+        $row = Category::find($id);
         $row->update($data);
 
 
@@ -119,14 +116,15 @@ class CategoryController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!',
-            ]);
+            ]
+        );
     }
 
 
-    public function destroy( $id)
+    public function destroy($id)
     {
 
-        $row=Category::find($id);
+        $row = Category::find($id);
 
         $row->delete();
 
@@ -134,7 +132,8 @@ class CategoryController extends Controller
             [
                 'code' => 200,
                 'message' => 'تمت العملية بنجاح!'
-            ]);
-    }//end fun
+            ]
+        );
+    } //end fun
 
 }
